@@ -40,14 +40,6 @@ export class App extends Component {
     document.addEventListener("click", this.showClock);
   }
 
-  componentDidUpdate(_, prevState) {
-    if (prevState.clockName !== this.state.clockName) {
-      console.log(
-        `Renamed from ${prevState.clockName} to ${this.state.clockName}`
-      );
-    }
-  }
-
   componentWillUnmount() {
     clearInterval(this.timerId);
 
