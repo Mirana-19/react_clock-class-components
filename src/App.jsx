@@ -1,4 +1,6 @@
-import './App.scss';
+import { Component } from "react";
+import "./App.css";
+import { Clock } from "./Clock/Clock";
 
 function getRandomName() {
   const value = Date.now().toString().slice(-4);
@@ -6,31 +8,59 @@ function getRandomName() {
   return `Clock-${value}`;
 }
 
-export const App = () => {
-  const today = new Date();
-  let clockName = 'Clock-0';
+export class App extends Component {
+  state = {
+    clockName: "Clock-0",
+    hasClock: true,
+  };
 
-  // This code starts a timer
-  const timerId = window.setInterval(() => {
-    clockName = getRandomName();
-  }, 3300);
+  timerId = null;
 
-  // this code stops the timer
-  window.clearInterval(timerId);
+  setTimer() {
+    this.timerId = window.setInterval(() => {
+      this.setState({ clockName: getRandomName() });
+    }, 3300);
+  }
 
-  return (
-    <div className="App">
-      <h1>React clock</h1>
+  showClock = () => {
+    this.setState({ hasClock: true });
+  };
 
-      <div className="Clock">
-        <strong className="Clock__name">{clockName}</strong>
+  hideClock = (e) => {
+    e.preventDefault();
 
-        {' time is '}
+    this.setState({ hasClock: false });
+  };
 
-        <span className="Clock__time">
-          {today.toUTCString().slice(-12, -4)}
-        </span>
+  componentDidMount() {
+    this.setTimer();
+
+    document.addEventListener("contextmenu", this.hideClock);
+
+    document.addEventListener("click", this.showClock);
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (prevState.clockName !== this.state.clockName) {
+      console.log(
+        `Renamed from ${prevState.clockName} to ${this.state.clockName}`
+      );
+    }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerId);
+
+    document.removeEventListener("click", this.showClock);
+    document.removeEventListener("contextmenu", this.hideClock);
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <h1>React clock</h1>
+        {this.state.hasClock && <Clock clockName={this.state.clockName} />}
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
